@@ -11,25 +11,38 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
 
 
-#actions for boast roast and highest votes(vote results)
+#actions need to change too upvote and downvote instead of boast and roast
     @action(detail=False)
     def boast(self, request):
         boast = Post.objects.filter(boast_or_roast=True).order_by('-date')
-        page = self.paginate_queryset(boast)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.boast)
         serializer = self.get_serializer(boast, many=True)
         return Response(serializer.data)
 
     @action(detail=False)
     def roast(self, request):
-        data = Post.objects.filter(boast_or_roast=False).order_by('-date')
-        page = self.paginate_queryset(data)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(data, many=True)
+        roast = Post.objects.filter(boast_or_roast=False).order_by('-date')
+        serializer = self.get_serializer(roast, many=True)
         return Response(serializer.data)
+    @action(detail=False)
+    def highestvotes(self, request):
+        highestvotes = Post.objects.all().order_by('downvotes', '-upvotes')
+        seriallizer = self.get_serializer(highestvotes, many=True)
+        return Response(seriallizer.data)
+
+    @action(detail = True, methods=['post'])
+    def upvote(self, request, id):
+        post = Post.objects.get(id=id)
+        post.upvote += 1
+        post.save()
+        return Response('success')
+
+    @action(detail= True, methods=['post'])
+    def downvote(self, request, id):
+        post = Post.objects.get(id=id)
+        post.downvote += 1
+        post.save()
+        return Response('success')
+
+   
 
    
