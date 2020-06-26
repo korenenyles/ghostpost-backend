@@ -23,23 +23,24 @@ class PostViewSet(viewsets.ModelViewSet):
         roast = Post.objects.filter(boast_or_roast=False).order_by('-date')
         serializer = self.get_serializer(roast, many=True)
         return Response(serializer.data)
+
     @action(detail=False)
     def highestvotes(self, request):
-        highestvotes = Post.objects.all().order_by('downvotes', '-upvotes')
+        highestvotes = Post.objects.all().order_by('-results')
         seriallizer = self.get_serializer(highestvotes, many=True)
         return Response(seriallizer.data)
 
     @action(detail = True, methods=['post'])
-    def upvote(self, request, id):
-        post = Post.objects.get(id=id)
-        post.upvote += 1
+    def upvotes(self, request, pk=id):
+        post = Post.objects.get(pk=pk)
+        post.upvotes += 1
         post.save()
         return Response('success')
 
     @action(detail= True, methods=['post'])
-    def downvote(self, request, id):
-        post = Post.objects.get(id=id)
-        post.downvote += 1
+    def downvotes(self, request, pk=id):
+        post = Post.objects.get(pk=pk)
+        post.downvotes += 1
         post.save()
         return Response('success')
 
